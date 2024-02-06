@@ -1,0 +1,50 @@
+version: '3'
+server:
+  command: "php psr-worker.php"
+
+# http service configuration.
+http:
+  address: 0.0.0.0:8000
+
+  pool:
+    num_workers: 4
+  
+  # you can set CORS with headers middleware, static middleware for serving static files
+  middleware: ["headers", "static"]
+  
+  headers:
+    # Automatically add headers to every response.
+    # Default: <empty map>
+    response:
+      X-Powered-By: "RoadRunner"
+  
+  # serve static files configuration
+  static:
+    dir:    "storage/app"
+    forbid: [".php", ".htaccess"]
+
+# control the max memory usage
+limit:
+  services:
+    http.maxMemory: 100
+    jobs.maxMemory: 100
+    
+# disable in production!
+# change detection, reload the php app everytime it detects a change (makes the server slow for reloading)
+reload:
+  # sync interval
+  interval: 1s
+  # global patterns to sync
+  patterns: [ ".php" ]
+  # list of included for sync services
+  services:
+    http:
+      # recursive search for file patterns to add
+      recursive: true
+      # ignored folders
+      ignore: [ "vendor" ]
+      # service specific file pattens to sync
+      patterns: [ ".php", ".go", ".md" ]
+      # directories to sync. If recursive is set to true,
+      # recursive sync will be applied only to the directories in `dirs` section
+      dirs: [ "." ]
